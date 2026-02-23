@@ -1,31 +1,26 @@
 package com.example.capteurs;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
+import android.util.TypedValue;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 
-import com.google.android.material.card.MaterialCardView;
-import com.google.android.material.textfield.TextInputEditText;
-
-import java.util.List;
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     private SensorManager sensorManager;
-    private MaterialCardView warningCard;
-    private TextView warningText;
-    private MaterialCardView resultCard;
-    private TextView resultText;
-    private TextInputEditText searchEditText;
-    private Button checkButton;
+    private Sensor accelerometer;
+    private ConstraintLayout rootLayout;
+    private TextView accelValueText, statusLabel, valX, valY, valZ;
+    private float thresholdLow, thresholdHigh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,87 +28,85 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initViews();
-        checkMandatorySensors();
-        setupSearchLogic();
+        loadThresholds();
+        setupAccelerometer();
     }
 
     private void initViews() {
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        warningCard = findViewById(R.id.warning_card);
-        warningText = findViewById(R.id.warning_text);
-        resultCard = findViewById(R.id.result_card);
-        resultText = findViewById(R.id.result_text);
-        searchEditText = findViewById(R.id.sensor_search_edit_text);
-        checkButton = findViewById(R.id.check_sensor_button);
+        rootLayout = findViewById(R.id.main_root);
+        accelValueText = findViewById(R.id.accel_value_text);
+        statusLabel = findViewById(R.id.status_label);
+        valX = findViewById(R.id.val_x);
+        valY = findViewById(R.id.val_y);
+        valZ = findViewById(R.id.val_z);
     }
 
-    private void checkMandatorySensors() {
-        StringBuilder missingSensors = new StringBuilder();
-
-        if (sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE) == null) {
-            missingSensors.append(getString(R.string.sensor_barometer)).append(", ");
-        }
-        if (sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE) == null) {
-            missingSensors.append(getString(R.string.sensor_thermometer)).append(", ");
-        }
-        if (sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY) == null) {
-            missingSensors.append(getString(R.string.sensor_humidity)).append(", ");
-        }
-
-        if (missingSensors.length() > 0) {
-            String missingList = missingSensors.substring(0, missingSensors.length() - 2);
-            warningCard.setVisibility(View.VISIBLE);
-            warningText.setText(getString(R.string.sensor_missing_warning, missingList));
-        } else {
-            warningCard.setVisibility(View.GONE);
-        }
-    }
-
-    private void setupSearchLogic() {
-        checkButton.setOnClickListener(v -> {
-            String query = searchEditText.getText().toString().trim().toLowerCase();
-            if (query.isEmpty()) {
-                updateResultView(getString(R.string.error_empty_search), Color.GRAY);
-                return;
-            }
-            performSensorSearch(query);
-        });
-    }
-
-    private void performSensorSearch(String query) {
-        String translatedQuery = getTranslatedQuery(query);
-        List<Sensor> allSensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
+    private void loadThresholds() {
+        TypedValue outValue = new TypedValue();
+        getResources().getValue(R.dimen.accel_threshold_low, outValue, true);
+        thresholdLow = outValue.getFloat();
         
-        Sensor foundSensor = null;
-        for (Sensor s : allSensors) {
-            if (s.getName().toLowerCase().contains(translatedQuery) || 
-                s.getStringType().toLowerCase().contains(translatedQuery)) {
-                foundSensor = s;
-                break;
-            }
-        }
+        getResources().getValue(R.dimen.accel_threshold_high, outValue, true);
+        thresholdHigh = outValue.getFloat();
+    }
 
-        if (foundSensor != null) {
-            updateResultView(getString(R.string.sensor_found, foundSensor.getName()), Color.parseColor("#22C55E"));
+    private void setupAccelerometer() {
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+        if (accelerometer == null) {
+            Toast.makeText(this, "Accéléromètre non disponible !", Toast.LENGTH_LONG).show();
+            finish();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (accelerometer != null) {
+            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        sensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            float x = event.values[0];
+            float y = event.values[1];
+            float z = event.values[2];
+
+            double magnitude = Math.sqrt(x * x + y * y + z * z);
+            
+            updateUI(magnitude, x, y, z);
+        }
+    }
+
+    private void updateUI(double magnitude, float x, float y, float z) {
+        accelValueText.setText(String.format("%.1f", magnitude));
+        valX.setText(String.format("%.1f", x));
+        valY.setText(String.format("%.1f", y));
+        valZ.setText(String.format("%.1f", z));
+
+        if (magnitude < thresholdLow) {
+            applyTheme(R.color.accel_low, R.string.status_calm);
+        } else if (magnitude < thresholdHigh) {
+            applyTheme(R.color.accel_medium, R.string.status_motion);
         } else {
-            updateResultView(getString(R.string.sensor_not_found, query), Color.parseColor("#EF4444"));
+            applyTheme(R.color.accel_high, R.string.status_acceleration);
         }
     }
 
-    private void updateResultView(String message, int color) {
-        resultCard.setVisibility(View.VISIBLE);
-        resultText.setText(message);
-        resultText.setTextColor(color);
-        resultCard.setStrokeColor(color);
+    private void applyTheme(int colorResId, int stringResId) {
+        rootLayout.setBackgroundColor(ContextCompat.getColor(this, colorResId));
+        statusLabel.setText(getString(stringResId));
     }
 
-    private String getTranslatedQuery(String query) {
-        String[] keys = getResources().getStringArray(R.array.sensor_query_keys);
-        String[] values = getResources().getStringArray(R.array.sensor_query_values);
-
-        for (int i = 0; i < keys.length; i++) {
-            if (keys[i].equals(query)) return values[i];
-        }
-        return query;
-    }
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 }

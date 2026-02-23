@@ -1,31 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary Palette (Slate / Ocean) -->
-    <color name="primary">#0F172A</color>
-    <color name="primary_variant">#1E293B</color>
-    <color name="on_primary">#FFFFFF</color>
-
-    <!-- Secondary Palette (Sky / Accent) -->
-    <color name="secondary">#38BDF8</color>
-    <color name="secondary_variant">#0EA5E9</color>
-    <color name="on_secondary">#0F172A</color>
-
-    <!-- Neutrals -->
-    <color name="background">#F8FAFC</color>
-    <color name="surface">#FFFFFF</color>
-    <color name="surface_variant">#F1F5F9</color>
-    <color name="outline">#E2E8F0</color>
-
-    <!-- Text -->
-    <color name="text_primary">#1E293B</color>
-    <color name="text_secondary">#64748B</color>
-    <color name="text_muted">#94A3B8</color>
-
-    <!-- Legacy / System -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-
-    <!-- Specific Semantic Colors -->
-    <color name="error">#EF4444</color>
-    <color name="success">#22C55E</color>
+    
+    <!-- Couleurs d'état Accéléromètre -->
+    <color name="accel_low">#22C55E</color>
+    <color name="accel_medium">#000000</color>
+    <color name="accel_high">#EF4444</color>
 </resources>
