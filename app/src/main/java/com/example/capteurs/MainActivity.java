@@ -5,10 +5,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.hardware.camera2.CameraAccessException;
-import android.hardware.camera2.CameraManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.TypedValue;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -22,18 +19,12 @@ import com.google.android.material.card.MaterialCardView;
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     private SensorManager sensorManager;
-    private Sensor accelerometer;
-    private CameraManager cameraManager;
-    private String cameraId;
+    private Sensor proximitySensor;
 
-    private TextView flashStatusText;
-    private ImageView flashIcon;
-    private MaterialCardView flashIconCard;
-
-    private boolean isFlashOn = false;
-    private float shakeThreshold;
-    private long lastShakeTime = 0;
-    private static final int SHAKE_COOLDOWN_MS = 1000; // Délai entre deux secousses pour éviter les répétitions
+    private TextView proximityStatusText;
+    private ImageView proximityIcon;
+    private MaterialCardView proximityIconCard;
+    private float proximityThreshold;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,36 +33,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         initViews();
         loadResources();
-        setupHardware();
+        setupProximitySensor();
     }
 
     private void initViews() {
-        flashStatusText = findViewById(R.id.flash_status_text);
-        flashIcon = findViewById(R.id.flash_icon);
-        flashIconCard = findViewById(R.id.flash_icon_card);
+        proximityStatusText = findViewById(R.id.proximity_status_text);
+        proximityIcon = findViewById(R.id.proximity_icon);
+        proximityIconCard = findViewById(R.id.proximity_icon_card);
     }
 
     private void loadResources() {
         TypedValue outValue = new TypedValue();
-        getResources().getValue(R.dimen.shake_threshold, outValue, true);
-        shakeThreshold = outValue.getFloat();
+        getResources().getValue(R.dimen.proximity_threshold, outValue, true);
+        proximityThreshold = outValue.getFloat();
     }
 
-    private void setupHardware() {
-        // Sensor setup
+    private void setupProximitySensor() {
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
-        // Camera setup for Flash
-        cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-        try {
-            cameraId = cameraManager.getCameraIdList()[0];
-        } catch (CameraAccessException e) {
-            Log.e("ShakeFlash", "Failed to access Camera.", e);
-        }
-
-        if (accelerometer == null) {
-            Toast.makeText(this, "Accéléromètre non disponible !", Toast.LENGTH_LONG).show();
+        if (proximitySensor == null) {
+            Toast.makeText(this, "Capteur de proximité non disponible !", Toast.LENGTH_LONG).show();
             finish();
         }
     }
@@ -79,8 +61,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onResume() {
         super.onResume();
-        if (accelerometer != null) {
-            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
+        if (proximitySensor != null) {
+            sensorManager.registerListener(this, proximitySensor, SensorManager.SENSOR_DELAY_UI);
         }
     }
 
@@ -88,50 +70,37 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onPause() {
         super.onPause();
         sensorManager.unregisterListener(this);
-        // Turn off flash when app is paused for safety
-        if (isFlashOn) toggleFlash();
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            float x = event.values[0];
-            float y = event.values[1];
-            float z = event.values[2];
-
-            double magnitude = Math.sqrt(x * x + y * y + z * z);
-            long currentTime = System.currentTimeMillis();
-
-            if (magnitude > shakeThreshold) {
-                if (currentTime - lastShakeTime > SHAKE_COOLDOWN_MS) {
-                    lastShakeTime = currentTime;
-                    toggleFlash();
-                }
-            }
+        if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
+            float distance = event.values[0];
+            updateUI(distance);
         }
     }
 
-    private void toggleFlash() {
-        try {
-            isFlashOn = !isFlashOn;
-            cameraManager.setTorchMode(cameraId, isFlashOn);
-            updateUI();
-        } catch (CameraAccessException e) {
-            Log.e("ShakeFlash", "Failed to toggle Flash.", e);
-        }
-    }
-
-    private void updateUI() {
-        if (isFlashOn) {
-            flashStatusText.setText(getString(R.string.flash_on));
-            flashStatusText.setTextColor(ContextCompat.getColor(this, R.color.accel_low)); // Réutilisation du vert
-            flashIcon.setColorFilter(ContextCompat.getColor(this, R.color.accel_low));
-            flashIconCard.setStrokeColor(ContextCompat.getColor(this, R.color.accel_low));
+    private void updateUI(float distance) {
+        if (distance < proximityThreshold) {
+            // ÉTAT PROCHE : Image de proximité (ic_near)
+            proximityStatusText.setText(getString(R.string.status_near));
+            proximityIcon.setImageResource(R.drawable.ic_near);
+            
+            // Changement visuel fort
+            proximityStatusText.setTextColor(ContextCompat.getColor(this, R.color.accel_low)); 
+            proximityIcon.setColorFilter(ContextCompat.getColor(this, R.color.accel_low));
+            proximityIconCard.setCardBackgroundColor(ContextCompat.getColor(this, R.color.surface_variant));
+            proximityIconCard.setStrokeColor(ContextCompat.getColor(this, R.color.accel_low));
         } else {
-            flashStatusText.setText(getString(R.string.flash_off));
-            flashStatusText.setTextColor(ContextCompat.getColor(this, R.color.white));
-            flashIcon.setColorFilter(ContextCompat.getColor(this, R.color.text_secondary));
-            flashIconCard.setStrokeColor(ContextCompat.getColor(this, R.color.outline));
+            // ÉTAT LOIN : Image d'éloignement (ic_far)
+            proximityStatusText.setText(getString(R.string.status_far));
+            proximityIcon.setImageResource(R.drawable.ic_far);
+            
+            // Retour à l'état normal
+            proximityStatusText.setTextColor(ContextCompat.getColor(this, R.color.white));
+            proximityIcon.setColorFilter(ContextCompat.getColor(this, R.color.secondary));
+            proximityIconCard.setCardBackgroundColor(ContextCompat.getColor(this, R.color.background));
+            proximityIconCard.setStrokeColor(ContextCompat.getColor(this, R.color.secondary));
         }
     }
 

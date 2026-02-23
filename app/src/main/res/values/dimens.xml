@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Seuil de détection de la secousse (magnitude m/s²) -->
-    <item name="shake_threshold" format="float" type="dimen">25.0</item>
+    <!-- Seuil de proximité standard (cm) -->
+    <item name="proximity_threshold" format="float" type="dimen">5.0</item>
 </resources>

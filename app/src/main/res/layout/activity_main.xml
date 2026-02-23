@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background">
 
-    <!-- État du Flash -->
+    <!-- État de la Proximité -->
     <TextView
-        android:id="@+id/flash_status_text"
+        android:id="@+id/proximity_status_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
-        android:text="@string/flash_off"
+        android:text="@string/status_far"
         android:textColor="@color/white"
         android:textSize="56sp"
         android:textStyle="bold"
@@ -24,35 +23,35 @@
 
     <!-- Icône Interactive -->
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/flash_icon_card"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:id="@+id/proximity_icon_card"
+        android:layout_width="260dp"
+        android:layout_height="260dp"
         app:cardBackgroundColor="@color/surface_variant"
-        app:cardCornerRadius="100dp"
-        app:cardElevation="10dp"
+        app:cardCornerRadius="130dp"
+        app:cardElevation="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:strokeColor="@color/outline"
-        app:strokeWidth="1dp">
+        app:strokeColor="@color/secondary"
+        app:strokeWidth="2dp">
 
         <ImageView
-            android:id="@+id/flash_icon"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:id="@+id/proximity_icon"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
             android:layout_gravity="center"
-            android:src="@drawable/ic_sensors"
-            app:tint="@color/text_secondary" />
+            android:src="@drawable/ic_far"
+            app:tint="@color/secondary" />
 
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Instruction en bas -->
+    <!-- Instruction -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="100dp"
-        android:text="@string/shake_instruction"
+        android:text="@string/proximity_instruction"
         android:textColor="@color/text_secondary"
         android:textSize="14sp"
         android:textStyle="bold"
