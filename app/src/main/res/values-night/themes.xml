@@ -1,7 +1,26 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.Capteurs" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <!-- Brand colors (Stay mostly same or darker for dark mode) -->
+        <item name="colorPrimary">@color/secondary</item> <!-- Primary is Sky in dark mode -->
+        <item name="colorOnPrimary">@color/on_secondary</item>
+        <item name="colorPrimaryContainer">@color/primary</item>
+        <item name="colorOnPrimaryContainer">@color/white</item>
+
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">@color/on_secondary</item>
+
+        <!-- Neutrals for Dark Mode -->
+        <item name="android:windowBackground">@color/primary</item> <!-- Slate 900 -->
+        <item name="colorSurface">@color/primary_variant</item> <!-- Slate 800 -->
+        <item name="colorSurfaceVariant">@color/primary_variant</item>
+        <item name="colorOutline">@color/text_secondary</item>
+
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@color/primary</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+
+        <!-- Shapes -->
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.App.MediumComponent</item>
     </style>
 </resources>

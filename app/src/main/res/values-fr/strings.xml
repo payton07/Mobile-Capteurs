@@ -1,4 +1,7 @@
 <resources>
-    <string name="app_name">Capteurs</string>
-    <string name="show_sensors_button_text">Afficher la liste des capteurs</string>
+    <string name="app_name">Sensor</string>
+    <string name="show_sensors_button_text">Explorer les Capteurs</string>
+    <string name="app_tagline">Découvrez vos capteurs.</string>
+    <string name="sensors_list_title">Capteurs Disponibles</string>
+    <string name="sensors_list_subtitle">Liste de tous les capteurs détectés sur cet appareil.</string>
 </resources>
