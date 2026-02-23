@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Capteurs</string>
+    <string name="show_sensors_button_text">Afficher la liste des capteurs</string>
+</resources>
