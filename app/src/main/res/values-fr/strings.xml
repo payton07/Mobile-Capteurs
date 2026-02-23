@@ -1,6 +1,9 @@
 <resources>
-    <string name="app_name">Vision Proximité</string>
-    <string name="status_near">PROCHE</string>
-    <string name="status_far">LOIN</string>
-    <string name="proximity_instruction">Approchez un objet du capteur</string>
+    <string name="app_name">Géo-Localisateur</string>
+    <string name="label_latitude">LATITUDE</string>
+    <string name="label_longitude">LONGITUDE</string>
+    <string name="label_altitude">ALTITUDE</string>
+    <string name="location_searching">Recherche de position...</string>
+    <string name="location_permission_required">Permission de localisation requise</string>
+    <string name="altitude_unit">m</string>
 </resources>

@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- Seuil de proximité standard (cm) -->
-    <item name="proximity_threshold" format="float" type="dimen">5.0</item>
-</resources>
