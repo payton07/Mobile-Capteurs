@@ -7,7 +7,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,9 +36,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Initialiser la config Osmdroid AVANT le setContentView
         Context ctx = getApplicationContext();
-        Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
+        // Set User Agent for OSM servers requirement
+        Configuration.getInstance().setUserAgentValue(getPackageName());
+        Configuration.getInstance().load(ctx, ctx.getSharedPreferences("osmdroid_prefs", MODE_PRIVATE));
         
         setContentView(R.layout.activity_main);
 
@@ -57,12 +57,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     }
 
     private void setupMap() {
-        map.setTileSource(TileSourceFactory.MAPNIK); // Source de la carte (OpenStreetMap standard)
-        map.setMultiTouchControls(true); // Activer le zoom (Pinch-to-zoom)
+        if (map == null) return;
+
+        map.setTileSource(TileSourceFactory.MAPNIK);
+        map.setMultiTouchControls(true);
         
         IMapController mapController = map.getController();
-        mapController.setZoom(18.0); // Zoom initial plus proche
-        GeoPoint startPoint = new GeoPoint(48.8566, 2.3522); // Paris par défaut
+        mapController.setZoom(18.0);
+        
+        GeoPoint startPoint = new GeoPoint(48.8566, 2.3522);
         mapController.setCenter(startPoint);
 
         marker = new Marker(map);
@@ -87,10 +90,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     private void startLocationUpdates() {
         try {
+            if (locationManager == null) return;
+            
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 5, this);
             } else if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2000, 5, this);
+            } else {
+                Toast.makeText(this, "Activez votre localisation !", Toast.LENGTH_LONG).show();
             }
         } catch (SecurityException e) {
             Toast.makeText(this, "Erreur de permission !", Toast.LENGTH_SHORT).show();
@@ -108,21 +115,25 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         valAltitude.setText(String.format("Altitude: %.1f m", location.getAltitude()));
 
         GeoPoint currentPoint = new GeoPoint(lat, lng);
-        marker.setPosition(currentPoint);
+        if (marker != null) {
+            marker.setPosition(currentPoint);
+        }
         
-        if (!initialCenteringDone) {
+        if (!initialCenteringDone && map != null) {
             map.getController().animateTo(currentPoint);
             initialCenteringDone = true;
         }
         
-        map.invalidate(); // Forcer le rafraîchissement de la carte
+        if (map != null) map.invalidate();
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            startLocationUpdates();
+        if (requestCode == PERMISSION_REQUEST_LOCATION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startLocationUpdates();
+            }
         }
     }
 
@@ -139,6 +150,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public void onPause() {
         super.onPause();
         if (map != null) map.onPause();
-        if (locationManager != null) locationManager.removeUpdates(this);
+        if (locationManager != null) {
+            locationManager.removeUpdates(this);
+        }
     }
 }
