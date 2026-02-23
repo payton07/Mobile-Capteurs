@@ -4,4 +4,12 @@
     <string name="app_tagline">Découvrez vos capteurs.</string>
     <string name="sensors_list_title">Capteurs Disponibles</string>
     <string name="sensors_list_subtitle">Liste de tous les capteurs détectés sur cet appareil.</string>
+    <string name="sensor_missing_warning">Fonctionnalités limitées : Les capteurs suivants sont manquants : %s.</string>
+    <string name="sensor_barometer">Baromètre</string>
+    <string name="sensor_thermometer">Thermomètre</string>
+    <string name="sensor_humidity">Humidité</string>
+    <string name="search_hint">Vérifier un capteur (ex: Lumière)</string>
+    <string name="error_empty_search">Veuillez entrer un nom</string>
+    <string name="sensor_found">Capteur présent : %s</string>
+    <string name="sensor_not_found">Capteur non trouvé : %s</string>
 </resources>

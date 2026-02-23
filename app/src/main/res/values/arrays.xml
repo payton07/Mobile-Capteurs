@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Les mots-clés que l'utilisateur peut taper -->
+    <string-array name="sensor_query_keys">
+        <item>lumiere</item>
+        <item>pression</item>
+        <item>barometre</item>
+        <item>humidite</item>
+        <item>temperature</item>
+        <item>accelerometre</item>
+        <item>gyroscope</item>
+        <item>proximite</item>
+        <item>magnetometre</item>
+        <item>boussole</item>
+    </string-array>
+
+    <!-- Les termes techniques correspondants à chercher dans le système -->
+    <string-array name="sensor_query_values">
+        <item>light</item>
+        <item>pressure</item>
+        <item>pressure</item>
+        <item>humidity</item>
+        <item>temperature</item>
+        <item>accelerometer</item>
+        <item>gyroscope</item>
+        <item>proximity</item>
+        <item>magnetic</item>
+        <item>magnetic</item>
+    </string-array>
+</resources>

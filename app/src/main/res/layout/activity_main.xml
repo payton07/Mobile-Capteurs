@@ -8,11 +8,12 @@
     android:background="@color/background"
     tools:context=".MainActivity">
 
+    <!-- Header Section -->
     <LinearLayout
         android:id="@+id/header_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
+        android:layout_marginTop="48dp"
         android:gravity="center"
         android:orientation="vertical"
         android:padding="24dp"
@@ -37,17 +38,114 @@
 
     </LinearLayout>
 
+    <!-- Mandatory Sensors Warning -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/warning_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="24dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="#FEF2F2"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="0dp"
+        app:layout_constraintTop_toBottomOf="@+id/header_layout"
+        app:strokeColor="#FEE2E2"
+        app:strokeWidth="1dp"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_sensors"
+                app:tint="@color/error" />
+
+            <TextView
+                android:id="@+id/warning_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:text="@string/sensor_missing_warning"
+                android:textColor="#991B1B"
+                android:textSize="13sp"
+                android:textStyle="normal" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Search Section -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/search_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="24dp"
+        app:cardBackgroundColor="@color/surface"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp"
+        app:layout_constraintBottom_toTopOf="@+id/icon_container"
+        app:layout_constraintTop_toBottomOf="@+id/warning_card"
+        app:strokeColor="@color/outline"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/sensor_search_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/search_hint"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/sensor_search_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:textSize="14sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/check_sensor_button"
+                style="@style/Widget.Material3.Button.IconButton.Filled"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center_vertical"
+                app:icon="@drawable/ic_sensors" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Central Icon Container -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/icon_container"
         android:layout_width="160dp"
         android:layout_height="160dp"
+        android:layout_marginTop="32dp"
         app:cardBackgroundColor="@color/surface_variant"
         app:cardCornerRadius="80dp"
         app:cardElevation="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/show_sensors_button"
+        app:layout_constraintBottom_toTopOf="@+id/result_card"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/header_layout"
+        app:layout_constraintTop_toBottomOf="@+id/search_container"
         app:strokeColor="@color/outline"
         app:strokeWidth="1dp">
 
@@ -61,17 +159,40 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/show_sensors_button"
-        style="@style/Widget.App.Button"
+    <!-- Result Display Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/result_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="32dp"
-        android:layout_marginBottom="64dp"
-        android:text="@string/show_sensors_button_text"
-        app:icon="@drawable/ic_sensors"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="32dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="@color/surface"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/icon_container"
+        app:strokeWidth="2dp"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:id="@+id/result_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Résultat de la recherche"
+                android:textAlignment="center"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
