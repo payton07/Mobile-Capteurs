@@ -64,7 +64,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onResume() {
         super.onResume();
         if (accelerometer != null) {
-            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
+            if (!sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL)){
+                Toast.makeText(this, "Accéléromètre non disponible !", Toast.LENGTH_LONG).show();
+                finish();
+            }
         }
     }
 
