@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Seuils pour l'accéléromètre (m/s²) -->
-    <item name="accel_threshold_low" format="float" type="dimen">12.0</item>
-    <item name="accel_threshold_high" format="float" type="dimen">20.0</item>
+    <!-- Seuil de détection du mouvement (m/s²) -->
+    <item name="motion_threshold" format="float" type="dimen">2.5</item>
+
+    <!-- Angles de rotation (degrés) -->
+    <item name="rotation_up" format="float" type="dimen">0.0</item>
+    <item name="rotation_down" format="float" type="dimen">180.0</item>
+    <item name="rotation_left" format="float" type="dimen">-90.0</item>
+    <item name="rotation_right" format="float" type="dimen">90.0</item>
 </resources>

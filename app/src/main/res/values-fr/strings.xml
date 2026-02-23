@@ -1,6 +1,8 @@
 <resources>
-    <string name="app_name">Motion Light</string>
-    <string name="status_calm">CALME</string>
-    <string name="status_motion">MOUVEMENT</string>
-    <string name="status_acceleration">ACCÉLÉRATION</string>
+    <string name="app_name">Traceur de Mouvement</string>
+    <string name="dir_center">IMMOBILE</string>
+    <string name="dir_up">HAUT</string>
+    <string name="dir_down">BAS</string>
+    <string name="dir_left">GAUCHE</string>
+    <string name="dir_right">DROITE</string>
 </resources>

@@ -7,20 +7,23 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.TypedValue;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     private SensorManager sensorManager;
     private Sensor accelerometer;
-    private ConstraintLayout rootLayout;
-    private TextView accelValueText, statusLabel, valX, valY, valZ;
-    private float thresholdLow, thresholdHigh;
+    private TextView directionText, valX, valY;
+    private ImageView directionIcon;
+    private View indicatorCard;
+    private float motionThreshold;
+    private float rotUp, rotDown, rotLeft, rotRight;
+    private float currentRotation = 0f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,32 +31,40 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         setContentView(R.layout.activity_main);
 
         initViews();
-        loadThresholds();
+        loadResources();
         setupAccelerometer();
     }
 
     private void initViews() {
-        rootLayout = findViewById(R.id.main_root);
-        accelValueText = findViewById(R.id.accel_value_text);
-        statusLabel = findViewById(R.id.status_label);
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        directionText = findViewById(R.id.direction_text);
         valX = findViewById(R.id.val_x);
         valY = findViewById(R.id.val_y);
-        valZ = findViewById(R.id.val_z);
+        directionIcon = findViewById(R.id.direction_icon);
+        indicatorCard = findViewById(R.id.indicator_card);
     }
 
-    private void loadThresholds() {
+    private void loadResources() {
         TypedValue outValue = new TypedValue();
-        getResources().getValue(R.dimen.accel_threshold_low, outValue, true);
-        thresholdLow = outValue.getFloat();
         
-        getResources().getValue(R.dimen.accel_threshold_high, outValue, true);
-        thresholdHigh = outValue.getFloat();
+        getResources().getValue(R.dimen.motion_threshold, outValue, true);
+        motionThreshold = outValue.getFloat();
+
+        getResources().getValue(R.dimen.rotation_up, outValue, true);
+        rotUp = outValue.getFloat();
+        
+        getResources().getValue(R.dimen.rotation_down, outValue, true);
+        rotDown = outValue.getFloat();
+        
+        getResources().getValue(R.dimen.rotation_left, outValue, true);
+        rotLeft = outValue.getFloat();
+        
+        getResources().getValue(R.dimen.rotation_right, outValue, true);
+        rotRight = outValue.getFloat();
     }
 
     private void setupAccelerometer() {
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-
         if (accelerometer == null) {
             Toast.makeText(this, "Accéléromètre non disponible !", Toast.LENGTH_LONG).show();
             finish();
@@ -64,10 +75,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onResume() {
         super.onResume();
         if (accelerometer != null) {
-            if (!sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL)){
-                Toast.makeText(this, "Accéléromètre non disponible !", Toast.LENGTH_LONG).show();
-                finish();
-            }
+            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
         }
     }
 
@@ -82,32 +90,58 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             float x = event.values[0];
             float y = event.values[1];
-            float z = event.values[2];
-
-            double magnitude = Math.sqrt(x * x + y * y + z * z);
-            
-            updateUI(magnitude, x, y, z);
+            updateDirection(x, y);
         }
     }
 
-    private void updateUI(double magnitude, float x, float y, float z) {
-        accelValueText.setText(String.format("%.1f", magnitude));
+    private void updateDirection(float x, float y) {
         valX.setText(String.format("%.1f", x));
         valY.setText(String.format("%.1f", y));
-        valZ.setText(String.format("%.1f", z));
 
-        if (magnitude < thresholdLow) {
-            applyTheme(R.color.accel_low, R.string.status_calm);
-        } else if (magnitude < thresholdHigh) {
-            applyTheme(R.color.accel_medium, R.string.status_motion);
+        String text = getString(R.string.dir_center);
+        float targetRotation = currentRotation; // Par défaut, on garde la rotation actuelle
+        boolean isMoving = false;
+
+        if (Math.abs(x) > Math.abs(y)) {
+            if (x > motionThreshold) {
+                text = getString(R.string.dir_left);
+                targetRotation = rotLeft;
+                isMoving = true;
+            } else if (x < -motionThreshold) {
+                text = getString(R.string.dir_right);
+                targetRotation = rotRight;
+                isMoving = true;
+            }
         } else {
-            applyTheme(R.color.accel_high, R.string.status_acceleration);
+            if (y > motionThreshold) {
+                text = getString(R.string.dir_down);
+                targetRotation = rotDown;
+                isMoving = true;
+            } else if (y < -motionThreshold) {
+                text = getString(R.string.dir_up);
+                targetRotation = rotUp;
+                isMoving = true;
+            }
+        }
+
+        directionText.setText(text);
+        
+        if (isMoving) {
+            animateRotation(targetRotation);
+            indicatorCard.setAlpha(1.0f);
+        } else {
+            indicatorCard.setAlpha(0.3f); // Estompe l'icône quand immobile
         }
     }
 
-    private void applyTheme(int colorResId, int stringResId) {
-        rootLayout.setBackgroundColor(ContextCompat.getColor(this, colorResId));
-        statusLabel.setText(getString(stringResId));
+    private void animateRotation(float targetRotation) {
+        if (currentRotation != targetRotation) {
+            directionIcon.animate()
+                    .rotation(targetRotation)
+                    .setDuration(200)
+                    .start();
+            currentRotation = targetRotation;
+        }
     }
 
     @Override
