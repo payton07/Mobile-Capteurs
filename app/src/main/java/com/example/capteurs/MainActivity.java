@@ -86,10 +86,20 @@ public class MainActivity extends AppCompatActivity {
         
         Sensor foundSensor = null;
         for (Sensor s : allSensors) {
-            if (s.getName().toLowerCase().contains(translatedQuery) || 
-                s.getStringType().toLowerCase().contains(translatedQuery)) {
-                foundSensor = s;
-                break;
+            String sensorName = s.getName().toLowerCase();
+            String sensorType = s.getStringType().toLowerCase();
+
+            // If query starts with 'type_', we prioritize matching it with the system string type
+            if (query.startsWith("type_")) {
+                if (sensorType.endsWith("." + translatedQuery) || sensorType.equals(translatedQuery)) {
+                    foundSensor = s;
+                    break;
+                }
+            } else {
+                if (sensorName.contains(translatedQuery) || sensorType.contains(translatedQuery)) {
+                    foundSensor = s;
+                    break;
+                }
             }
         }
 
@@ -108,6 +118,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String getTranslatedQuery(String query) {
+        // Handle TYPE_ format by removing the prefix
+        if (query.startsWith("type_")) {
+            return query.substring(5);
+        }
+
         String[] keys = getResources().getStringArray(R.array.sensor_query_keys);
         String[] values = getResources().getStringArray(R.array.sensor_query_values);
 

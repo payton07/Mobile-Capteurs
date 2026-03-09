@@ -8,7 +8,7 @@
     <string name="sensor_barometer">Barometer</string>
     <string name="sensor_thermometer">Thermometer</string>
     <string name="sensor_humidity">Humidity</string>
-    <string name="search_hint">Check a sensor (ex: Light)</string>
+    <string name="search_hint">Check a sensor (ex: TYPE_LIGHT)</string>
     <string name="error_empty_search">Please enter a name</string>
     <string name="sensor_found">Sensor present: %s</string>
     <string name="sensor_not_found">Sensor not found: %s</string>
